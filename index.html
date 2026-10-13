@@ -499,6 +499,8 @@
   .pop-nm{ font-family:var(--display); font-weight:400; font-size:15px; letter-spacing:.01em; }
   .pop-ad{ font-size:12px; line-height:1.5; color:var(--muted); margin-top:6px; }
   .pop-tel{ display:inline-block; margin-top:8px; font-size:12.5px; color:var(--fg); }
+.pop-dir{ display:flex; width:fit-content; align-items:center; gap:7px; margin-top:10px; font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--fg); text-decoration:none; border-bottom:1px solid rgba(51,58,60,.35); padding-bottom:5px; }
+.pop-dir svg{ width:12px; height:12px; }
   .rols-pin{ width:16px; height:16px; border-radius:50%; background:var(--fg); border:2.5px solid #fff; box-shadow:0 2px 6px rgba(51,58,60,.45); }
   .rols-pin.you{ background:#b07a3c; width:18px; height:18px; }
 
@@ -1169,7 +1171,37 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   var CONT_LABELS = [ {n:'Europa',ll:[52,24]}, {n:'Asia',ll:[52,95]}, {n:'África',ll:[2,22]}, {n:'América del Norte',ll:[46,-102]}, {n:'América del Sur',ll:[-16,-62]}, {n:'Oceanía',ll:[-26,135]} ];
 
   function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-  STORES.forEach(function(s){ s._s = norm(s.name + ' ' + s.addr + ' ' + s.country); });
+  var SEARCH_ALIASES = [
+    // ciudades (en varios idiomas; sin acentos, minuscula)
+    ['london','londres','londra'], ['paris'], ['munich','munchen'], ['cologne','koln','colonia'],
+    ['vienna','wien','viena'], ['rome','roma'], ['milan','milano','mailand'], ['turin','torino'],
+    ['florence','firenze','florencia'], ['venice','venezia','venecia'], ['naples','napoli','napoles'],
+    ['athens','athina','atenas','athen'], ['thessaloniki','salonica','saloniki'], ['lisbon','lisboa','lissabon'],
+    ['porto','oporto'], ['brussels','bruxelles','brussel','bruselas','brussel'], ['antwerp','anvers','antwerpen','amberes'],
+    ['the hague','den haag','la haya'], ['amsterdam'], ['rotterdam'], ['copenhagen','kobenhavn','copenhague','kopenhagen'],
+    ['geneva','geneve','ginebra','genf'], ['zurich','zuerich'], ['warsaw','warszawa','varsovia'],
+    ['prague','praha','praga'], ['stockholm','estocolmo'], ['gothenburg','goteborg','gotemburgo'],
+    ['oslo'], ['helsinki'], ['dublin','dublin'], ['edinburgh','edimburgo'], ['seville','sevilla'],
+    ['saragossa','zaragoza'], ['moscow','moscu','moskva'], ['istanbul','estambul'],
+    // paises
+    ['spain','espana'], ['united kingdom','uk','great britain','england','inglaterra','reino unido','gran bretana'],
+    ['germany','deutschland','alemania'], ['france','francia','frankreich'], ['italy','italia','italien'],
+    ['austria','osterreich'], ['greece','grecia','hellas','ellada'], ['portugal'],
+    ['belgium','belgica','belgique','belgie'], ['netherlands','holland','paises bajos','holanda','nederland'],
+    ['norway','noruega','norge'], ['sweden','suecia','sverige'], ['finland','finlandia','suomi'],
+    ['denmark','dinamarca','danmark'], ['switzerland','suiza','schweiz','suisse','svizzera'],
+    ['poland','polonia','polska'], ['czechia','czech republic','chequia','cesko'], ['ireland','irlanda'],
+    ['turkey','turquia','turkiye'], ['russia','rusia']
+  ];
+  STORES.forEach(function(s){
+    var base = norm(s.name + ' ' + s.addr + ' ' + s.country);
+    var words = {}; base.split(/[^a-z0-9]+/).forEach(function(w){ if(w) words[w]=1; });
+    SEARCH_ALIASES.forEach(function(g){
+      var hit = g.some(function(t){ return t.indexOf(' ')!==-1 ? base.indexOf(t)!==-1 : words[t]===1; });
+      if (hit) base += ' ' + g.join(' ');
+    });
+    s._s = base;
+  });
   var STORE_COUNTRIES = {}; STORES.forEach(function(s){ STORE_COUNTRIES[s.country]=1; });
 
   function haversine(a, b){
@@ -1179,9 +1211,15 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
     return 2*R*Math.asin(Math.sqrt(h));
   }
   function esc(t){ return (t||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function gmapsUrl(s){
+    var dest = s.addr ? (s.addr + (s.country ? ', '+s.country : '')) : (s.lat+','+s.lng);
+    return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest);
+  }
+  var DIR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="20" y2="12"></line><polyline points="13 5 20 12 13 19"></polyline></svg>';
   function popupHtml(s){
     var tel = s.phone ? '<a class="pop-tel" href="tel:'+s.phone.replace(/\s/g,'')+'">'+s.phone+'</a>' : '';
-    return '<div class="pop-nm">'+esc(s.name)+'</div><div class="pop-ad">'+esc(s.addr)+'</div>'+tel;
+    var dir = '<a class="pop-dir" href="'+gmapsUrl(s)+'" target="_blank" rel="noopener">C\u00f3mo llegar '+DIR_SVG+'</a>';
+    return '<div class="pop-nm">'+esc(s.name)+'</div><div class="pop-ad">'+esc(s.addr)+'</div>'+tel+dir;
   }
   function countIcon(n){
     var s = n<10 ? 's' : (n<50 ? 'm' : (n<150 ? 'l' : 'xl'));
@@ -1321,13 +1359,16 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
     rows.forEach(function(r){ var m=markers[r.i]; if (m) cluster.addLayer(m); });
     renderList(rows);
     syncMap();
+  }
+  function fitView(){
+    var rows = lastRows;
     if (user && maxKm>0){
       var pts = rows.filter(function(r){return r.s.lat!=null;}).map(function(r){return [r.s.lat,r.s.lng];});
       pts.push([user.lat, user.lng]);
-      if (pts.length>1) map.fitBounds(pts, { padding:[40,40], maxZoom:11 });
+      if (pts.length>1) map.flyToBounds(pts, { padding:[40,40], maxZoom:11, duration:0.9 });
     } else if (query){
       var p2 = rows.filter(function(r){return r.s.lat!=null;}).map(function(r){return [r.s.lat,r.s.lng];});
-      if (p2.length) map.fitBounds(p2, { padding:[50,50], maxZoom:9 });
+      if (p2.length) map.flyToBounds(p2, { padding:[50,50], maxZoom:9, duration:0.9 });
     }
   }
 
@@ -1410,11 +1451,13 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
     }, { enableHighAccuracy:false, timeout:8000, maximumAge:600000 });
   }
 
-  qEl.addEventListener('input', function(){ query = norm(qEl.value.trim()); render(); });
+  var qT;
+  qEl.addEventListener('input', function(){ query = norm(qEl.value.trim()); render(); clearTimeout(qT); qT = setTimeout(fitView, 550); });
+  qEl.addEventListener('keydown', function(e){ if (e.key==='Enter'){ clearTimeout(qT); fitView(); qEl.blur(); } });
   geoBtn.addEventListener('click', function(){ geolocate(); });
   segEl.addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) return; var km = +b.dataset.km;
-    function apply(){ maxKm = km; [].forEach.call(segEl.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed', x===b ? 'true':'false'); }); render(); }
+    function apply(){ maxKm = km; [].forEach.call(segEl.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed', x===b ? 'true':'false'); }); render(); fitView(); }
     if (km>0 && !user){ geolocate(function(ok){ if(ok) apply(); }); } else apply();
   });
   clearBtn.addEventListener('click', function(){
