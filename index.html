@@ -1206,10 +1206,30 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
     ['norway','noruega','norge'], ['sweden','suecia','sverige'], ['finland','finlandia','suomi'],
     ['denmark','dinamarca','danmark'], ['switzerland','suiza','schweiz','suisse','svizzera'],
     ['poland','polonia','polska'], ['czechia','czech republic','chequia','cesko'], ['ireland','irlanda'],
-    ['turkey','turquia','turkiye'], ['russia','rusia']
+    ['turkey','turquia','turkiye'], ['russia','rusia'],
+    // paises en mas idiomas (FR / DE / IT / PT / NL)
+    ['espagne','spanien','spagna','espanha','spanje','espana'], ['royaume-uni','vereinigtes konigreich','regno unito','reino unido','verenigd koninkrijk','britain','britannia'],
+    ['frankreich','francia','frankrijk','franca'], ['italie','italien','italia','italie'], ['allemagne','germania','alemanha','duitsland','alemania'],
+    ['finlande','finnland','finlandia'], ['pays-bas','niederlande','paesi bassi','paises baixos','paises bajos'], ['pologne','polen','polonia'],
+    ['chypre','zypern','cipro','chipre'], ['grece','griechenland','grecia'], ['malte','malta'], ['norvege','norwegen','norvegia','noruega'],
+    ['autriche','austria'], ['suede','schweden','svezia','suecia'], ['lituanie','litauen','lituania'], ['andorre','andorra'], ['belgien','belgio','belgica'],
+    // fuera de Europa
+    ['new zealand','nueva zelanda','nz','aotearoa','nouvelle-zelande','neuseeland','nuova zelanda','nova zelandia'],
+    ['australia','australie','australien'],
+    ['united states','united states of america','usa','us','eeuu','ee uu','estados unidos','etats-unis','vereinigte staaten','stati uniti','america','norteamerica'],
+    ['canada','kanada'], ['mexico','mejico','mexique'],
+    // ciudades fuera de Europa y espanolas en otros idiomas
+    ['auckland'], ['wellington'], ['sydney','sidney','alexandria'], ['melbourne'], ['seattle'],
+    ['barcelona','barcelone','barcellona'], ['valencia','valence'], ['malaga'], ['bilbao'], ['san sebastian','donostia'], ['a coruna','la coruna','corunna'],
+    ['lisbon','lisboa','lissabon','lisbonne']
   ];
+  // nombre en ingles de cada pais con tiendas, sacado del diccionario del mapa (EN -> ES)
+  var EN_BY_ES = {};
+  var ESN = (typeof ROLS_ES_NAMES !== 'undefined') ? ROLS_ES_NAMES : {};
+  Object.keys(ESN).forEach(function(en){ EN_BY_ES[ESN[en]] = en; });
   STORES.forEach(function(s){
     var base = norm(s.name + ' ' + s.addr + ' ' + s.country);
+    if (EN_BY_ES[s.country]) base += ' ' + norm(EN_BY_ES[s.country]);
     var words = {}; base.split(/[^a-z0-9]+/).forEach(function(w){ if(w) words[w]=1; });
     SEARCH_ALIASES.forEach(function(g){
       var hit = g.some(function(t){ return t.indexOf(' ')!==-1 ? base.indexOf(t)!==-1 : words[t]===1; });
