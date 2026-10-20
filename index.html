@@ -438,13 +438,13 @@
   .loc-grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:20px; }
   .loc-head{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; }
   .loc-head h1{ margin-top:2px; }
-  .loc-head .lead{ max-width:42ch; }
+  .loc-head .lead{ max-width:42ch; font-size:13.5px; line-height:1.7; }
   @media (min-width:960px){
     .loc-grid{ grid-template-columns:minmax(0,392px) minmax(0,1fr);
       grid-template-areas:"head map" "ctrl map" "list map"; grid-template-rows:auto auto 1fr; gap:0 44px; align-items:start; }
     .loc-head{ grid-area:head; margin-bottom:26px; } .controls{ grid-area:ctrl; } .mapwrap{ grid-area:map; } .slist{ grid-area:list; }
   }
-  .controls{ display:flex; flex-direction:column; gap:16px; padding:22px; border:1px solid var(--line-strong); border-radius:16px; background:var(--bg); }
+  .controls{ display:flex; flex-direction:column; gap:16px; padding:0; border:0; border-radius:0; background:none; }
   .geo-btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px 18px; border-radius:999px; background:var(--beige); color:var(--fg); font-family:var(--sans); font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; border:0; cursor:pointer; transition:background-color .3s ease; }
   .geo-btn:hover{ background:#e3d5c5; } .geo-btn svg{ width:15px; height:15px; flex:none; }
   .geo-btn[data-on="1"]{ background:#e3d5c5; }
@@ -467,7 +467,8 @@
   .seg{ display:flex; gap:6px; margin-top:8px; }
   .seg button{ flex:1; padding:9px 6px; border:1px solid var(--line-strong); border-radius:999px; background:var(--bg); font-family:var(--sans); font-size:11px; font-weight:500; letter-spacing:.05em; color:var(--muted); cursor:pointer; transition:background-color .2s ease,color .2s ease,border-color .2s ease; }
   .seg button[aria-pressed="true"]{ background:var(--bg); color:var(--fg); border-color:var(--fg); font-weight:600; }
-  .loc-count{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; border-top:1px solid var(--line); padding-top:14px; }
+  .loc-count{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding-top:4px; }
+  .loc-count[hidden]{ display:none; }
   .loc-count span{ font-size:12px; color:var(--muted); }
   .loc-count b{ font-family:var(--display); font-weight:300; font-size:21px; letter-spacing:-.01em; color:var(--fg); }
   .clearf{ background:none; border:0; color:var(--soft); font-size:10px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; padding:0; }
@@ -913,7 +914,7 @@
       <div class="loc-head">
         <p class="eyebrow">Dónde encontrarnos</p>
         <h1>Descubre Rols cerca de ti</h1>
-        <p class="lead">Explora nuestros materiales, colores y texturas en una selección de tiendas que cuentan con muestras de nuestras colecciones. Encuentra la más cercana y descubre Rols en persona.</p>
+        <p class="lead">Explora nuestros materiales, colores y texturas en tiendas que cuentan con muestras de nuestras colecciones. Encuentra la más cercana a ti.</p>
       </div>
 
       <div class="controls">
