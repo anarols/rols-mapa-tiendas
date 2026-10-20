@@ -490,6 +490,8 @@
   .cghead{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 2px; background:none; border:0; cursor:pointer; text-align:left; color:var(--fg); font-family:var(--sans); transition:color .2s ease; }
   .cghead:hover{ color:var(--soft); }
   .cgname{ font-family:var(--display); font-weight:400; font-size:16px; letter-spacing:.01em; }
+  .cgleft{ display:flex; align-items:center; gap:11px; min-width:0; }
+  .cgflag{ width:22px; height:16px; flex:none; object-fit:cover; border-radius:2px; box-shadow:0 0 0 1px rgba(0,0,0,.08); }
   .cgmeta{ display:flex; align-items:center; gap:14px; flex:none; }
   .cgcount{ font-size:10.5px; font-weight:500; letter-spacing:.08em; color:var(--soft); }
   .cgchev{ width:14px; height:14px; color:var(--soft); transition:transform .3s ease; }
@@ -1183,6 +1185,8 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   var GEO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>';
 
   var CONT = { 'España':'Europa','Portugal':'Europa','Francia':'Europa','Italia':'Europa','Alemania':'Europa','Reino Unido':'Europa','Bélgica':'Europa','Países Bajos':'Europa','Noruega':'Europa','Suecia':'Europa','Finlandia':'Europa','Austria':'Europa','Grecia':'Europa','Malta':'Europa','Chipre':'Europa','Polonia':'Europa','Andorra':'Europa','Lituania':'Europa','Estados Unidos':'Norteamérica','Canadá':'Norteamérica','México':'Norteamérica','Australia':'Oceanía','Nueva Zelanda':'Oceanía' };
+  var FLAG = { 'España':'es','Portugal':'pt','Francia':'fr','Italia':'it','Alemania':'de','Reino Unido':'gb','Bélgica':'be','Países Bajos':'nl','Noruega':'no','Suecia':'se','Finlandia':'fi','Austria':'at','Grecia':'gr','Malta':'mt','Chipre':'cy','Polonia':'pl','Andorra':'ad','Lituania':'lt','Estados Unidos':'us','Canadá':'ca','México':'mx','Australia':'au','Nueva Zelanda':'nz' };
+  function flagHTML(cn){ var c = FLAG[cn]; return c ? '<img class="cgflag" src="https://flagcdn.com/'+c+'.svg" alt="" loading="lazy" width="22" height="16">' : ''; }
   var CONT_LABELS = [ {n:'Europa',ll:[52,24]}, {n:'Asia',ll:[52,95]}, {n:'África',ll:[2,22]}, {n:'América del Norte',ll:[46,-102]}, {n:'América del Sur',ll:[-16,-62]}, {n:'Oceanía',ll:[-26,135]} ];
 
   function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
@@ -1424,7 +1428,7 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   function countryGroupEl(cn, items){
     var li = document.createElement('li'); li.className = 'cgroup';
     var head = document.createElement('button'); head.type='button'; head.className='cghead'; head.setAttribute('aria-expanded','false');
-    head.innerHTML = '<span class="cgname">'+esc(cn)+'</span><span class="cgmeta"><span class="cgcount">'+items.length+' '+(items.length===1?'tienda':'tiendas')+'</span><svg class="cgchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>';
+    head.innerHTML = '<span class="cgleft">'+flagHTML(cn)+'<span class="cgname">'+esc(cn)+'</span></span><span class="cgmeta"><span class="cgcount">'+items.length+' '+(items.length===1?'tienda':'tiendas')+'</span><svg class="cgchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>';
     var ul = document.createElement('ul'); ul.className = 'cglist';
     items.forEach(function(r){ ul.appendChild(makeCard(r, false)); });
     head.addEventListener('click', function(e){ e.stopPropagation(); var open=li.classList.toggle('open'); head.setAttribute('aria-expanded', open?'true':'false'); if (open){ fitIdx(items.map(function(r){return r.i;})); if(!window.matchMedia('(min-width:960px)').matches){ document.getElementById('map').scrollIntoView({behavior:'smooth', block:'start'}); } } });
