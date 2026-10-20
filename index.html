@@ -911,9 +911,9 @@
     <div class="loc-grid">
 
       <div class="loc-head">
-        <p class="eyebrow">Dónde comprar · Tiendas físicas</p>
-        <h1>Nuestra red de tiendas físicas</h1>
-        <p class="lead">Más de 280 tiendas distribuidoras por toda Europa. Busca por tu ubicación o por nombre y encuentra la más cercana.</p>
+        <p class="eyebrow">Dónde encontrarnos</p>
+        <h1>Descubre Rols cerca de ti</h1>
+        <p class="lead">Explora nuestros materiales, colores y texturas en una selección de tiendas que cuentan con muestras de nuestras colecciones. Encuentra la más cercana y descubre Rols en persona.</p>
       </div>
 
       <div class="controls">
@@ -926,17 +926,8 @@
           <input id="q" type="search" placeholder="Busca por tienda, ciudad o país" autocomplete="off" aria-label="Buscar tienda">
           <div class="sugg" id="sugg" role="listbox" hidden></div>
         </div>
-        <div>
-          <span class="seg-label">Distancia máxima</span>
-          <div class="seg" id="seg" role="group" aria-label="Distancia máxima">
-            <button type="button" data-km="0" aria-pressed="true">Todas</button>
-            <button type="button" data-km="25" aria-pressed="false">25 km</button>
-            <button type="button" data-km="150" aria-pressed="false">150 km</button>
-          </div>
-        </div>
-        <div class="loc-count">
-          <span><b id="count">0</b> tiendas</span>
-          <button class="clearf" id="clear" type="button" hidden>Quitar filtros</button>
+        <div class="loc-count" id="locCount" hidden>
+          <button class="clearf" id="clear" type="button">Quitar filtros</button>
         </div>
       </div>
 
@@ -1179,6 +1170,7 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   var segEl = document.getElementById('seg');
   var geoBtn = document.getElementById('geo');
   var clearBtn = document.getElementById('clear');
+  var locCountEl = document.getElementById('locCount');
 
   var user = null, maxKm = 0, query = '', markers = [], userMarker = null, activeIdx = -1;
   var map, cluster, countryLayer, continentLayer, contLabelGroup, labelTiers = [], countryMarks = {};
@@ -1392,8 +1384,10 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   function render(){
     var rows = compute();
     lastRows = rows;
-    countEl.textContent = rows.length;
-    clearBtn.hidden = !(query || maxKm>0 || user);
+    if (countEl) countEl.textContent = rows.length;
+    var showClear = !!(query || maxKm>0 || user);
+    if (clearBtn) clearBtn.hidden = !showClear;
+    if (locCountEl) locCountEl.hidden = !showClear;
     cluster.clearLayers();
     rows.forEach(function(r){ var m=markers[r.i]; if (m) cluster.addLayer(m); });
     renderList(rows);
@@ -1522,16 +1516,16 @@ var ROLS_ES_NAMES = {'Albania':'Albania','Andorra':'Andorra','Armenia':'Armenia'
   document.addEventListener('click', function(e){ if (!e.target.closest('.field')) hideSugg(); });
   var qgo=document.getElementById('qgo'); if(qgo){ qgo.addEventListener('click', commit); qgo.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); commit(); } }); }
   geoBtn.addEventListener('click', function(){ geolocate(); });
-  segEl.addEventListener('click', function(e){
+  if (segEl) segEl.addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) return; var km = +b.dataset.km;
     function apply(){ maxKm = km; [].forEach.call(segEl.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed', x===b ? 'true':'false'); }); render(); fitView(); }
     if (km>0 && !user){ geolocate(function(ok){ if(ok) apply(); }); } else apply();
   });
-  clearBtn.addEventListener('click', function(){
+  if (clearBtn) clearBtn.addEventListener('click', function(){
     query=''; qEl.value=''; maxKm=0; user=null;
     if (userMarker){ map.removeLayer(userMarker); userMarker=null; }
     geoBtn.removeAttribute('data-on'); geoBtn.innerHTML = GEO_SVG + ' Usar mi ubicación';
-    [].forEach.call(segEl.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed', x.dataset.km==='0'?'true':'false'); });
+    if (segEl) [].forEach.call(segEl.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed', x.dataset.km==='0'?'true':'false'); });
     map.setView([47,5], 4); render();
   });
 
