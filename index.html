@@ -436,13 +436,15 @@
   .loc{ padding-top:28px; padding-bottom:44px; }
   @media (min-width:768px){ .loc{ padding-top:40px; } }
   .loc-grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:20px; }
+  .loc-side{ display:contents; }
+  @media (max-width:959px){ .slist{ order:1; } }
   .loc-head{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; }
   .loc-head h1{ margin-top:2px; }
   .loc-head .lead{ max-width:42ch; font-size:13.5px; line-height:1.7; }
   @media (min-width:960px){
-    .loc-grid{ grid-template-columns:minmax(0,392px) minmax(0,1fr);
-      grid-template-areas:"head map" "ctrl map" "list map"; grid-template-rows:auto auto 1fr; gap:0 44px; align-items:start; }
-    .loc-head{ grid-area:head; margin-bottom:26px; } .controls{ grid-area:ctrl; } .mapwrap{ grid-area:map; } .slist{ grid-area:list; }
+    .loc-grid{ grid-template-columns:minmax(0,392px) minmax(0,1fr); gap:0 44px; align-items:start; }
+    .loc-side{ display:flex; flex-direction:column; min-height:0; position:sticky; top:calc(var(--cabecera) + 16px); max-height:calc(100vh - var(--cabecera) - 56px); }
+    .loc-head{ margin-bottom:26px; flex:0 0 auto; } .controls{ flex:0 0 auto; }
   }
   .controls{ display:flex; flex-direction:column; gap:16px; padding:0; border:0; border-radius:0; background:none; }
   .geo-btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px 18px; border-radius:999px; background:var(--beige); color:var(--fg); font-family:var(--sans); font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; border:0; cursor:pointer; transition:background-color .3s ease; }
@@ -474,7 +476,7 @@
   .clearf{ background:none; border:0; color:var(--soft); font-size:10px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; padding:0; }
   .clearf:hover{ color:var(--fg); }
   .slist{ list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; }
-  @media (min-width:960px){ .slist{ margin-top:20px; max-height:72vh; overflow-y:auto; overscroll-behavior:contain; padding-right:8px; scrollbar-width:thin; } }
+  @media (min-width:960px){ .slist{ margin-top:20px; flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:8px; scrollbar-width:thin; } }
   .scard{ padding:15px 2px; border-bottom:1px solid var(--line); cursor:pointer; transition:background-color .2s ease; }
   .slist > .scard:first-child{ border-top:1px solid var(--line); }
   .scard:hover,.scard.active{ background:var(--surface); }
@@ -911,6 +913,8 @@
   <section class="wrap loc">
     <div class="loc-grid">
 
+      <div class="loc-side">
+
       <div class="loc-head">
         <p class="eyebrow">Dónde encontrarnos</p>
         <h1>Descubre Rols cerca de ti</h1>
@@ -931,9 +935,11 @@
         </div>
       </div>
 
-      <div class="mapwrap"><div id="map"></div></div>
-
       <ul class="slist" id="list" aria-live="polite"></ul>
+
+      </div>
+
+      <div class="mapwrap"><div id="map"></div></div>
 
     </div>
   </section>
